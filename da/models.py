@@ -1,14 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.core.validators import MinValueValidator
+from django.shortcuts import reverse
 
 # Create your models here.
 
 class Category(models.Model):
     name = models.CharField(verbose_name='Наименование категории',max_length=255,unique=True)
-    description = models.TextField(verbose_name='Описание категории',max_length=500,blank=True)
-    created = models.DateTimeField(verbose_name='Дата создания',auto_now_add=True,)
-    modified = models.DateTimeField(verbose_name='Дата изменения', auto_now=True,)
     parents = models.ForeignKey('self', on_delete=models.PROTECT, null=True, related_name='parent')
 
     def __str__(self):
@@ -49,7 +48,7 @@ class CartProduct(models.Model):
     
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -68,11 +67,36 @@ class Profile(models.Model):
         return self.user.username
     
 class Brand(models.Model):
-    pass
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    logo = models.ImageField(upload_to='brand_logos/')
+
+    def __str__(self):
+        return self.name
 
 class Post(models.Model):
-    pass
+    title = models.CharField('Заголовок', max_length=255)
+    text =  models.TextField('Текст новости')
+    img = models.ImageField('Каритинки новости', upload_to='img/post_img/')
+    slug = models.SlugField('Ссылка' , unique=True)
+    published_at = models.DateTimeField('Дата публикации', default= timezone.now)
+    published = models.BooleanField('Модерация', default = False)
+    category = models.ManyToManyField('Post_Category', verbose_name='категория')
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Автор')
+
+class Post_Category(models.Model):
+    name = models.CharField(verbose_name='Наименование категории',max_length=255,unique=True)
+    slug = models.SlugField('Ссылка' , unique=True)
+
+    def get_link(self):
+        return reverse('post_category', kwargs={'slug': self.slug})
 
 class Comment(models.Model):
-    pass
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.content
 

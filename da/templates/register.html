@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Регистрация</title>
+	<link rel="stylesheet" href="{% static 'style.css' %}">
+	<link rel="icon" href="http://vladmaxi.net/favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="http://vladmaxi.net/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+
+<form  method = 'POST' action = "{% url 'register' %}" class='login-form' id="login">
+    {% csrf_token %}
+    <h1>Logo</h1>
+    <fieldset id="inputs">
+       {% for f in form %}
+       {{f}}
+       {% endfor %}
+        
+    </fieldset>
+    <fieldset id="actions">
+        <input type="submit" id="submit" value="ВОЙТИ">
+        <a href=""></a><a href="">Уже зарегестрированы? Войдите</a>
+    </fieldset>
+</form>
+</body>
+</html>
